@@ -1,0 +1,120 @@
+<html>
+    <head>
+        <link href="https://fonts.googleapis.com/css?family=Raleway" rel="stylesheet">
+    </head>
+
+<style>
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Raleway', sans-serif;
+}
+
+.flex-container {
+    height: 100%;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.flex-item {
+    padding: 5px;
+    width: 100%;
+    height: 20px;
+    margin: 10px;
+    line-height: 20px;
+    color: black;
+    font-weight: bold;
+    font-size: 2em;
+    text-align: center;
+}
+
+.stream {
+    width: 100%;
+}
+
+.hide {
+    display: none;
+}
+
+</style>
+<script>
+    
+var apiKey = 'AIzaSyAwGdjKl7A5Baw5aPHficwQ1QL8hjoLTSg'; //choose public apiKey, any IP allowed (leave blank the allowed IP boxes in Google Dev Console)
+var userEmail = "umn.edu_03i167teqjvrfvuo1v2dfg7nnc@group.calendar.google.com"; //your calendar Id
+var userTimeZone = "Chicago"; //example "Rome" "Los_Angeles" ecc...
+var maxRows = 10; //events to shown
+var calName = "Sample CAlendar"; //name of calendar (write what you want, doesn't matter)
+    
+var scopes = 'https://www.googleapis.com/auth/calendar';
+
+//--------------------- client CALL
+function handleClientLoad() {
+    gapi.client.setApiKey(apiKey);
+    makeApiCall();
+}
+//--------------------- end
+
+//--------------------- API CALL itself
+function makeApiCall() {
+    var today = new Date(); //today date
+    var valid = false;
+    gapi.client.load('calendar', 'v3', function () {
+        var request = gapi.client.calendar.events.list({
+            'calendarId' : userEmail,
+            'timeZone' : userTimeZone, 
+            'singleEvents': true, 
+            'timeMin': today.toISOString(), //gathers only events not happened yet
+            'maxResults': maxRows, 
+            'orderBy': 'startTime'});
+    request.execute(function (resp) {
+            for (var i = 0; i < resp.items.length; i++) {
+                var li = document.createElement('li');
+                var item = resp.items[i];
+                var allDay = item.start.date? true : false;
+                var startDT = allDay ? item.start.date : item.start.dateTime;
+                var endDT = allDay ? item.end.date : item.end.dateTime;
+                var startDatetime = new Date(startDT);
+                var endDatetime = new Date(endDT);
+
+                var valid = startDatetime < today && endDatetime > today;
+            }
+
+            if(valid) {
+                showStream();
+            }
+            else {
+                noStream();
+            }
+
+
+        });
+    });
+}
+
+function showStream() {
+    $("#checkingText").hide();
+    $(".stream").removeClass("hide");
+}
+
+function noStream() {
+    
+    $("#checkingText").text("No Stream Available at the moment");
+}
+
+
+//--------------------- end
+</script>
+<script src='//apis.google.com/js/client.js?onload=handleClientLoad'></script>
+<script   src="//code.jquery.com/jquery-3.3.1.min.js"   integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="   crossorigin="anonymous"></script>
+    <div id='content' class="flex-container">
+    <h1 id='checkingText' class="flex-item">Checking for Streams</h1>
+    <div class="hide stream">
+        <iframe width="100%" height="100%" src="https://www.youtube.com/embed/y7e-GC6oGhg" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+    </div>
+</body>
+</html>
+
