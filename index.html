@@ -81,6 +81,9 @@ function makeApiCall() {
                 var endDatetime = new Date(endDT);
 
                 var valid = startDatetime < today && endDatetime > today;
+                if(valid) {
+                    break;
+                }
             }
 
             if(valid) {
